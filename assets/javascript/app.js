@@ -13,8 +13,25 @@ var database = firebase.database();
 database.ref("trains").on("value", function(snapshot)
 {
 	console.log(snapshot.val());
-	//get the trains from firebase add them to the page
+	console.log(snapshot.val().name);
+	var train = $("<tr>");
+	train.append($("<td>").text(snapshot.val().name));
+	train.append($("<td>").text(snapshot.val().destination));
+	train.append($("<td>").text(snapshot.val().frequency));
+	//append next arrival
+	//append minutes away
+	$("tbody").append(train);
 }, function(errorObject)
 {
 	console.log("The read failed: " + errorObject.code);
+});
+
+$("button").on("click", function(){
+	event.preventDefault();
+	database.ref("trains").push({
+		name: $("#train-name").val(),
+		destination: $("#destination").val(),
+		firstTrainTime: $("#first-train-time").val(),
+		frequency: $("#frequency").val()
+	});
 });
