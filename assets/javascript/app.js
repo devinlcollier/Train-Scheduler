@@ -10,16 +10,27 @@ var config = {
 firebase.initializeApp(config);
 var database = firebase.database();
 
-database.ref("trains").on("value", function(snapshot)
+database.ref("trains").on("child_added", function(snapshot)
 {
+	console.log(Object.keys(snapshot.val()));
 	console.log(snapshot.val());
-	console.log(snapshot.val().name);
+
 	var train = $("<tr>");
 	train.append($("<td>").text(snapshot.val().name));
 	train.append($("<td>").text(snapshot.val().destination));
 	train.append($("<td>").text(snapshot.val().frequency));
-	//append next arrival
-	//append minutes away
+
+	var frequency = parseInt(snapshot.val().frequency);
+	var firstTime = moment(parseInt(snapshot.val().firstTrainTime), "HH:MM").subtract(1, "years");
+
+	var currentTime = moment();
+	var diff = moment().diff(firstTime, "minutes");
+	var remainder = diff % frequency;
+	var minutesUntilTrain = frequency - remainder;
+	var nextTrain = moment().add(minutesUntilTrain, "minutes");
+
+	train.append($("<td>").text(moment(nextTrain).format("hh:mm")));
+	train.append($("<td>").text(minutesUntilTrain));
 	$("tbody").append(train);
 }, function(errorObject)
 {
